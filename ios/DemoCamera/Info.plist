@@ -33,6 +33,10 @@
 		<key>NSAllowsLocalNetworking</key>
 		<true/>
 	</dict>
+	<key>NSCameraUsageDescription</key>
+	<string>Chúng tôi cần quyền truy cập camera để chụp ảnh xe đạp</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Chúng tôi cần quyền truy cập microphone để quay video</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string></string>
 	<key>RCTNewArchEnabled</key>
