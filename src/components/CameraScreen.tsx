@@ -1,4 +1,4 @@
-import React, { useRef, useState, useCallback } from 'react';
+import React, { useRef, useState, useCallback, useEffect } from 'react';
 import {
     View,
     Text,
@@ -10,7 +10,10 @@ import {
     GestureResponderEvent,
     Dimensions,
     PanResponder,
+    Animated,
 } from 'react-native';
+import { SvgXml } from 'react-native-svg';
+import { bikeSvgXml } from '../assets/bikeSvg';
 import {
     Camera,
     useCameraDevice,
@@ -19,6 +22,12 @@ import {
 import { useCameraPermissions } from '../hooks/useCameraPermissions';
 import { BikeFrameOverlay, getFrameDimensions } from './BikeFrameOverlay';
 import { cropImageToFrame } from '../utils/cropImage';
+
+// Frame dimensions matching BikeFrameOverlay
+const SCREEN_WIDTH = Dimensions.get('window').width;
+const SCREEN_HEIGHT = Dimensions.get('window').height;
+const FRAME_WIDTH = SCREEN_WIDTH * 0.8;
+const FRAME_HEIGHT = SCREEN_HEIGHT * 0.65;
 
 export const CameraScreen: React.FC = () => {
     const camera = useRef<Camera>(null);
@@ -29,6 +38,46 @@ export const CameraScreen: React.FC = () => {
     const [zoom, setZoom] = useState(1);
     const lastPinchDistance = useRef<number | null>(null);
     const lastZoom = useRef(0.5);
+
+    // SVG overlay - blink for 5 seconds then fade out
+    const [showSvgOverlay, setShowSvgOverlay] = useState(true);
+    const svgOpacity = useRef(new Animated.Value(1)).current;
+
+    useEffect(() => {
+        // Blinking animation
+        const blinkAnimation = Animated.loop(
+            Animated.sequence([
+                Animated.timing(svgOpacity, {
+                    toValue: 0.3,
+                    duration: 400,
+                    useNativeDriver: true,
+                }),
+                Animated.timing(svgOpacity, {
+                    toValue: 1,
+                    duration: 400,
+                    useNativeDriver: true,
+                }),
+            ]),
+        );
+        blinkAnimation.start();
+
+        // After 5 seconds, stop blinking and fade out
+        const timer = setTimeout(() => {
+            blinkAnimation.stop();
+            Animated.timing(svgOpacity, {
+                toValue: 0,
+                duration: 500,
+                useNativeDriver: true,
+            }).start(() => {
+                setShowSvgOverlay(false);
+            });
+        }, 5000);
+
+        return () => {
+            clearTimeout(timer);
+            blinkAnimation.stop();
+        };
+    }, [svgOpacity]);
 
     const minZoom = 0.5;
     const maxZoom = device?.maxZoom ?? 10;
@@ -237,6 +286,23 @@ export const CameraScreen: React.FC = () => {
             />
 
             <BikeFrameOverlay />
+
+            {/* SVG bicycle guide overlay - shown for 3 seconds */}
+            {showSvgOverlay && (
+                <Animated.View
+                    style={[
+                        styles.svgOverlayContainer,
+                        { opacity: svgOpacity },
+                    ]}
+                    pointerEvents="none"
+                >
+                    <SvgXml
+                        xml={bikeSvgXml}
+                        width={FRAME_WIDTH * 0.85}
+                        height={FRAME_HEIGHT * 0.9}
+                    />
+                </Animated.View>
+            )}
 
             {/* Instruction text - above frame */}
             <View style={styles.instructionContainer}>
@@ -451,5 +517,14 @@ const styles = StyleSheet.create({
         color: 'white',
         fontSize: 16,
         fontWeight: '600',
+    },
+    svgOverlayContainer: {
+        position: 'absolute',
+        top: 120,
+        left: (SCREEN_WIDTH - FRAME_WIDTH) / 2,
+        width: FRAME_WIDTH,
+        height: FRAME_HEIGHT,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
 });
