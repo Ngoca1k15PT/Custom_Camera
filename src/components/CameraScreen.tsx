@@ -243,6 +243,9 @@ export const CameraScreen: React.FC = () => {
                 <Text style={styles.instructionText}>
                     自転車をガイドフレーム内に置いてください。
                 </Text>
+                <Text style={styles.instructionSubText}>
+                    Đầu xe hướng lên trên, đuôi xe hướng xuống dưới
+                </Text>
             </View>
 
             {/* Zoom indicator */}
@@ -402,6 +405,12 @@ const styles = StyleSheet.create({
         paddingVertical: 12,
         borderRadius: 8,
         overflow: 'hidden',
+    },
+    instructionSubText: {
+        color: 'rgba(255, 255, 255, 0.7)',
+        fontSize: 12,
+        textAlign: 'center',
+        marginTop: 6,
     },
     captureButton: {
         width: 80,
