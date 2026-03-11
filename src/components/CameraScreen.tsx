@@ -337,25 +337,7 @@ export const CameraScreen: React.FC = () => {
             <BikeFrameOverlay overlayOpacity={bikeOpacity} />
 
             {/* SVG overlay + arrow: bike blinks 3s → bike solid + arrow blinks 3s → both hide */}
-            {overlayVisible && (
-                <>
-                    <Animated.View
-                        style={[
-                            styles.svgOverlayContainer,
-                            { opacity: bikeOpacity },
-                        ]}
-                        pointerEvents="none"
-                    >
-                        <SvgXml
-                            xml={bikeSvgXml}
-                            width={FRAME_WIDTH * 0.7}
-                            height={FRAME_HEIGHT * 0.75}
-                        />
-                    </Animated.View>
 
-                    {/* Arrow icon hidden - now part of BikeFrameOverlay */}
-                </>
-            )}
 
             {/* Instruction text - above frame */}
             <View style={styles.instructionContainer}>

@@ -124,7 +124,7 @@ export const BikeFrameOverlay: React.FC<BikeFrameOverlayProps> = ({ overlayOpaci
                         styles.arrowImageSmall,
                         {
                             top: frameY + 30,
-                            left: centerX + 55,
+                            left: centerX + 60,
                             transform: [{ rotate: '40deg' }, { scaleX: -1 }],
                         },
                     ]}
@@ -142,8 +142,8 @@ export const BikeFrameOverlay: React.FC<BikeFrameOverlayProps> = ({ overlayOpaci
                     style={[
                         styles.arrowImage,
                         {
-                            top: centerY - 55,
-                            left: centerX - 5,
+                            top: centerY - 110,
+                            left: centerX - 10,
                             transform: [{ rotate: '135deg' }],
                         },
                     ]}
@@ -173,24 +173,32 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     labelText: {
-        backgroundColor: 'rgba(50, 50, 50, 0.8)',
-        color: 'white',
-        fontSize: 16,
-        fontWeight: '700',
+        backgroundColor: 'rgba(0, 0, 0, 0.75)',
+        color: '#FFD700',
+        fontSize: 18,
+        fontWeight: '800',
         textAlign: 'center',
-        paddingHorizontal: 16,
-        paddingVertical: 8,
-        borderRadius: 6,
+        paddingHorizontal: 18,
+        paddingVertical: 10,
+        borderRadius: 8,
         overflow: 'hidden',
+        borderWidth: 1.5,
+        borderColor: 'rgba(255, 215, 0, 0.6)',
+        textShadowColor: 'rgba(255, 215, 0, 0.8)',
+        textShadowOffset: { width: 0, height: 0 },
+        textShadowRadius: 8,
+        letterSpacing: 1,
     },
     arrowImage: {
         position: 'absolute',
-        width: 45,
-        height: 45,
+        width: 100,
+        height: 100,
+        tintColor: '#fd0800ff',
     },
     arrowImageSmall: {
         position: 'absolute',
-        width: 40,
-        height: 40,
+        width: 45,
+        height: 45,
+        tintColor: '#ff0000ff',
     },
 });
