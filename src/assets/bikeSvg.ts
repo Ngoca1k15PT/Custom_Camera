@@ -1,4 +1,5 @@
-export const bikeSvgXml = `<svg width="241" height="516" viewBox="0 0 241 516" fill="none" xmlns="http://www.w3.org/2000/svg">
+// Original bicycle SVG - keeps exact shape, converted to white skeleton style
+const _originalBikeSvg = `<svg width="241" height="516" viewBox="0 0 241 516" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M156.618 371.267L157.005 376.317L155.308 374.441L154.92 369.39L156.618 371.267Z" fill="#B6B6B8"/>
 <path d="M161.613 376.631L162 381.682L160.303 379.805L159.915 374.755L161.613 376.631Z" fill="#B6B6B8"/>
 <path d="M163.994 374.159L164.381 379.209L164.36 382.553L163.972 377.502L163.994 374.159Z" fill="#7783AF"/>
@@ -551,3 +552,11 @@ export const bikeSvgXml = `<svg width="241" height="516" viewBox="0 0 241 516" f
 </linearGradient>
 </defs>
 </svg>`;
+
+// Convert all colors to white for skeleton/silhouette effect
+// Keeps exact same bicycle shape, just makes it monochrome white
+export const bikeSvgXml = _originalBikeSvg
+    .replace(/fill="#[0-9A-Fa-f]{3,8}"/g, 'fill="white"')
+    .replace(/fill="url\([^)]+\)"/g, 'fill="white"')
+    .replace(/stroke="#[0-9A-Fa-f]{3,8}"/g, 'stroke="white"')
+    .replace(/stop-color="#[0-9A-Fa-f]{3,8}"/g, 'stop-color="white"');

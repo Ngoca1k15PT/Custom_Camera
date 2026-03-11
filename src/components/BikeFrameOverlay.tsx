@@ -1,14 +1,14 @@
 import React from 'react';
-import { View, StyleSheet, Dimensions } from 'react-native';
+import { View, Text, Image, StyleSheet, Dimensions, Animated } from 'react-native';
 import Svg, { Rect, Line, G } from 'react-native-svg';
+
+const arrowIcon = require('../assets/arrow_icon.png');
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 // Frame dimensions - landscape oriented for bicycle
 const FRAME_WIDTH = SCREEN_WIDTH * 0.8;
 const FRAME_HEIGHT = SCREEN_HEIGHT * 0.65;
-const CORNER_SIZE = 30;
-const CORNER_WIDTH = 4;
 
 // Export frame coordinates for cropping
 export const getFrameDimensions = () => {
@@ -25,9 +25,17 @@ export const getFrameDimensions = () => {
     };
 };
 
-export const BikeFrameOverlay: React.FC = () => {
+interface BikeFrameOverlayProps {
+    overlayOpacity?: Animated.Value;
+}
+
+export const BikeFrameOverlay: React.FC<BikeFrameOverlayProps> = ({ overlayOpacity }) => {
     const frameX = (SCREEN_WIDTH - FRAME_WIDTH) / 2;
     const frameY = 120;
+
+    // Center of the frame
+    const centerX = SCREEN_WIDTH / 2;
+    const centerY = frameY + FRAME_HEIGHT / 2;
 
     return (
         <View style={styles.container} pointerEvents="none">
@@ -68,85 +76,85 @@ export const BikeFrameOverlay: React.FC = () => {
                     />
                 </G>
 
-                {/* Corner guides */}
-                <G stroke="#00FF00" strokeWidth={CORNER_WIDTH} fill="none">
-                    {/* Top-left corner */}
-                    <Line
-                        x1={frameX}
-                        y1={frameY}
-                        x2={frameX + CORNER_SIZE}
-                        y2={frameY}
-                    />
-                    <Line
-                        x1={frameX}
-                        y1={frameY}
-                        x2={frameX}
-                        y2={frameY + CORNER_SIZE}
-                    />
+                {/* Yellow frame border with rounded corners */}
+                <Rect
+                    x={frameX}
+                    y={frameY}
+                    width={FRAME_WIDTH}
+                    height={FRAME_HEIGHT}
+                    rx={16}
+                    ry={16}
+                    stroke="#FFD700"
+                    strokeWidth={4}
+                    fill="none"
+                />
 
-                    {/* Top-right corner */}
-                    <Line
-                        x1={frameX + FRAME_WIDTH - CORNER_SIZE}
-                        y1={frameY}
-                        x2={frameX + FRAME_WIDTH}
-                        y2={frameY}
-                    />
-                    <Line
-                        x1={frameX + FRAME_WIDTH}
-                        y1={frameY}
-                        x2={frameX + FRAME_WIDTH}
-                        y2={frameY + CORNER_SIZE}
-                    />
-
-                    {/* Bottom-left corner */}
-                    <Line
-                        x1={frameX}
-                        y1={frameY + FRAME_HEIGHT - CORNER_SIZE}
-                        x2={frameX}
-                        y2={frameY + FRAME_HEIGHT}
-                    />
-                    <Line
-                        x1={frameX}
-                        y1={frameY + FRAME_HEIGHT}
-                        x2={frameX + CORNER_SIZE}
-                        y2={frameY + FRAME_HEIGHT}
-                    />
-
-                    {/* Bottom-right corner */}
-                    <Line
-                        x1={frameX + FRAME_WIDTH}
-                        y1={frameY + FRAME_HEIGHT - CORNER_SIZE}
-                        x2={frameX + FRAME_WIDTH}
-                        y2={frameY + FRAME_HEIGHT}
-                    />
-                    <Line
-                        x1={frameX + FRAME_WIDTH - CORNER_SIZE}
-                        y1={frameY + FRAME_HEIGHT}
-                        x2={frameX + FRAME_WIDTH}
-                        y2={frameY + FRAME_HEIGHT}
-                    />
-                </G>
-
-                {/* Center guidelines */}
-                <G stroke="#00FF00" strokeWidth={1.5} fill="none" opacity={0.5}>
+                {/* Green dashed center guidelines */}
+                <G stroke="#00CC00" strokeWidth={3} fill="none" opacity={0.8}>
                     {/* Vertical center line */}
                     <Line
-                        x1={SCREEN_WIDTH / 2}
-                        y1={frameY}
-                        x2={SCREEN_WIDTH / 2}
-                        y2={frameY + FRAME_HEIGHT}
-                        strokeDasharray="10, 10"
+                        x1={centerX}
+                        y1={frameY + 10}
+                        x2={centerX}
+                        y2={frameY + FRAME_HEIGHT - 10}
+                        strokeDasharray="12, 8"
                     />
                     {/* Horizontal center line */}
                     <Line
-                        x1={frameX}
-                        y1={SCREEN_HEIGHT / 2}
-                        x2={frameX + FRAME_WIDTH}
-                        y2={SCREEN_HEIGHT / 2}
-                        strokeDasharray="10, 10"
+                        x1={frameX + 10}
+                        y1={centerY}
+                        x2={frameX + FRAME_WIDTH - 10}
+                        y2={centerY}
+                        strokeDasharray="12, 8"
                     />
                 </G>
             </Svg>
+
+            {/* Labels and arrows - animated with bike overlay */}
+            <Animated.View style={[styles.labelsContainer, overlayOpacity ? { opacity: overlayOpacity } : {}]}>
+                {/* Top label: ハンドル側 */}
+                <View style={[styles.labelRow, { top: frameY + 12 }]}>
+                    <Text style={styles.labelText}>ハンドル側</Text>
+                </View>
+
+                {/* Top arrow icon - smaller, pointing to top label */}
+                <Image
+                    source={arrowIcon}
+                    style={[
+                        styles.arrowImageSmall,
+                        {
+                            top: frameY + 30,
+                            left: centerX + 55,
+                            transform: [{ rotate: '40deg' }, { scaleX: -1 }],
+                        },
+                    ]}
+                    resizeMode="contain"
+                />
+
+                {/* Middle label: 自転車を中心に */}
+                <View style={[styles.labelRow, { top: centerY + 15 }]}>
+                    <Text style={styles.labelText}>自転車を中心に</Text>
+                </View>
+
+                {/* Middle arrow icon - pointing to intersection of guidelines */}
+                <Image
+                    source={arrowIcon}
+                    style={[
+                        styles.arrowImage,
+                        {
+                            top: centerY - 55,
+                            left: centerX - 5,
+                            transform: [{ rotate: '135deg' }],
+                        },
+                    ]}
+                    resizeMode="contain"
+                />
+
+                {/* Bottom label: 後輪側 */}
+                <View style={[styles.labelRow, { top: frameY + FRAME_HEIGHT - 55 }]}>
+                    <Text style={styles.labelText}>後輪側</Text>
+                </View>
+            </Animated.View>
         </View>
     );
 };
@@ -154,7 +162,35 @@ export const BikeFrameOverlay: React.FC = () => {
 const styles = StyleSheet.create({
     container: {
         ...StyleSheet.absoluteFillObject,
-        justifyContent: 'center',
+    },
+    labelsContainer: {
+        ...StyleSheet.absoluteFillObject,
+    },
+    labelRow: {
+        position: 'absolute',
+        left: 0,
+        right: 0,
         alignItems: 'center',
+    },
+    labelText: {
+        backgroundColor: 'rgba(50, 50, 50, 0.8)',
+        color: 'white',
+        fontSize: 16,
+        fontWeight: '700',
+        textAlign: 'center',
+        paddingHorizontal: 16,
+        paddingVertical: 8,
+        borderRadius: 6,
+        overflow: 'hidden',
+    },
+    arrowImage: {
+        position: 'absolute',
+        width: 45,
+        height: 45,
+    },
+    arrowImageSmall: {
+        position: 'absolute',
+        width: 40,
+        height: 40,
     },
 });

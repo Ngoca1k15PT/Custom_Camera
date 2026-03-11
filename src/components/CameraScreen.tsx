@@ -11,9 +11,13 @@ import {
     Dimensions,
     PanResponder,
     Animated,
+    Easing,
 } from 'react-native';
 import { SvgXml } from 'react-native-svg';
 import { bikeSvgXml } from '../assets/bikeSvg';
+
+// Arrow icon
+const arrowIcon = require('../assets/arrow_icon.png');
 import {
     Camera,
     useCameraDevice,
@@ -39,45 +43,90 @@ export const CameraScreen: React.FC = () => {
     const lastPinchDistance = useRef<number | null>(null);
     const lastZoom = useRef(0.5);
 
-    // SVG overlay - blink for 5 seconds then fade out
-    const [showSvgOverlay, setShowSvgOverlay] = useState(true);
-    const svgOpacity = useRef(new Animated.Value(1)).current;
+    // Phase 1: Bike blinks 3s → Phase 2: Bike solid + arrow blinks 3s → Phase 3: both fade out
+    const bikeOpacity = useRef(new Animated.Value(0)).current;
+    const arrowOpacity = useRef(new Animated.Value(0)).current;
+    const [overlayVisible, setOverlayVisible] = useState(true);
 
     useEffect(() => {
-        // Blinking animation
-        const blinkAnimation = Animated.loop(
+        // --- Phase 1: Bike SVG blinks for 3 seconds ---
+        const bikeBlinkLoop = Animated.loop(
             Animated.sequence([
-                Animated.timing(svgOpacity, {
-                    toValue: 0.3,
-                    duration: 400,
+                Animated.timing(bikeOpacity, {
+                    toValue: 0.55,
+                    duration: 500,
+                    easing: Easing.inOut(Easing.ease),
                     useNativeDriver: true,
                 }),
-                Animated.timing(svgOpacity, {
-                    toValue: 1,
-                    duration: 400,
+                Animated.timing(bikeOpacity, {
+                    toValue: 0.1,
+                    duration: 500,
+                    easing: Easing.inOut(Easing.ease),
                     useNativeDriver: true,
                 }),
             ]),
         );
-        blinkAnimation.start();
+        bikeBlinkLoop.start();
 
-        // After 5 seconds, stop blinking and fade out
-        const timer = setTimeout(() => {
-            blinkAnimation.stop();
-            Animated.timing(svgOpacity, {
-                toValue: 0,
-                duration: 500,
+        // --- Phase 2: After 3s, stop bike blink → bike solid, arrow blinks ---
+        const phase2Timer = setTimeout(() => {
+            bikeBlinkLoop.stop();
+            // Bike stays solid
+            Animated.timing(bikeOpacity, {
+                toValue: 0.45,
+                duration: 300,
                 useNativeDriver: true,
-            }).start(() => {
-                setShowSvgOverlay(false);
-            });
-        }, 5000);
+            }).start();
+
+            // Arrow blinks for 3 seconds
+            const arrowBlinkLoop = Animated.loop(
+                Animated.sequence([
+                    Animated.timing(arrowOpacity, {
+                        toValue: 0.9,
+                        duration: 500,
+                        easing: Easing.inOut(Easing.ease),
+                        useNativeDriver: true,
+                    }),
+                    Animated.timing(arrowOpacity, {
+                        toValue: 0.15,
+                        duration: 500,
+                        easing: Easing.inOut(Easing.ease),
+                        useNativeDriver: true,
+                    }),
+                ]),
+            );
+            arrowBlinkLoop.start();
+
+            // --- Phase 3: After another 3s, fade out both and hide ---
+            const phase3Timer = setTimeout(() => {
+                arrowBlinkLoop.stop();
+                Animated.parallel([
+                    Animated.timing(bikeOpacity, {
+                        toValue: 0,
+                        duration: 500,
+                        useNativeDriver: true,
+                    }),
+                    Animated.timing(arrowOpacity, {
+                        toValue: 0,
+                        duration: 500,
+                        useNativeDriver: true,
+                    }),
+                ]).start(() => {
+                    setOverlayVisible(false);
+                });
+            }, 3000);
+
+            cleanupPhase3 = phase3Timer;
+        }, 3000);
+
+        let cleanupPhase3: ReturnType<typeof setTimeout> | null = null;
 
         return () => {
-            clearTimeout(timer);
-            blinkAnimation.stop();
+            clearTimeout(phase2Timer);
+            if (cleanupPhase3) clearTimeout(cleanupPhase3);
+            bikeBlinkLoop.stop();
         };
-    }, [svgOpacity]);
+    }, [bikeOpacity, arrowOpacity]);
 
     const minZoom = 0.5;
     const maxZoom = device?.maxZoom ?? 10;
@@ -285,23 +334,27 @@ export const CameraScreen: React.FC = () => {
                 zoom={zoom}
             />
 
-            <BikeFrameOverlay />
+            <BikeFrameOverlay overlayOpacity={bikeOpacity} />
 
-            {/* SVG bicycle guide overlay - shown for 3 seconds */}
-            {showSvgOverlay && (
-                <Animated.View
-                    style={[
-                        styles.svgOverlayContainer,
-                        { opacity: svgOpacity },
-                    ]}
-                    pointerEvents="none"
-                >
-                    <SvgXml
-                        xml={bikeSvgXml}
-                        width={FRAME_WIDTH * 0.85}
-                        height={FRAME_HEIGHT * 0.9}
-                    />
-                </Animated.View>
+            {/* SVG overlay + arrow: bike blinks 3s → bike solid + arrow blinks 3s → both hide */}
+            {overlayVisible && (
+                <>
+                    <Animated.View
+                        style={[
+                            styles.svgOverlayContainer,
+                            { opacity: bikeOpacity },
+                        ]}
+                        pointerEvents="none"
+                    >
+                        <SvgXml
+                            xml={bikeSvgXml}
+                            width={FRAME_WIDTH * 0.7}
+                            height={FRAME_HEIGHT * 0.75}
+                        />
+                    </Animated.View>
+
+                    {/* Arrow icon hidden - now part of BikeFrameOverlay */}
+                </>
             )}
 
             {/* Instruction text - above frame */}
@@ -526,5 +579,19 @@ const styles = StyleSheet.create({
         height: FRAME_HEIGHT,
         justifyContent: 'center',
         alignItems: 'center',
+    },
+    arrowIconContainer: {
+        position: 'absolute',
+        top: 120 + FRAME_HEIGHT / 2 - 30,
+        left: (SCREEN_WIDTH / 2) + 10,
+        width: 100,
+        height: 100,
+        justifyContent: 'center',
+        alignItems: 'center',
+        transform: [{ scaleX: -1 }],
+    },
+    arrowIcon: {
+        width: 80,
+        height: 80,
     },
 });
