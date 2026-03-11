@@ -113,12 +113,12 @@ export const BikeFrameOverlay: React.FC<BikeFrameOverlayProps> = ({ overlayOpaci
             {/* Labels and arrows - animated with bike overlay */}
             <Animated.View style={[styles.labelsContainer, overlayOpacity ? { opacity: overlayOpacity } : {}]}>
                 {/* Top label: ハンドル側 */}
-                <View style={[styles.labelRow, { top: frameY + 12 }]}>
+                {/* <View style={[styles.labelRow, { top: frameY + 12 }]}>
                     <Text style={styles.labelText}>ハンドル側</Text>
-                </View>
+                </View> */}
 
                 {/* Top arrow icon - smaller, pointing to top label */}
-                <Image
+                {/* <Image
                     source={arrowIcon}
                     style={[
                         styles.arrowImageSmall,
@@ -129,10 +129,10 @@ export const BikeFrameOverlay: React.FC<BikeFrameOverlayProps> = ({ overlayOpaci
                         },
                     ]}
                     resizeMode="contain"
-                />
+                /> */}
 
                 {/* Middle label: 自転車を中心に */}
-                <View style={[styles.labelRow, { top: centerY + 15 }]}>
+                <View style={[styles.labelRow, { top: centerY + 40 }]}>
                     <Text style={styles.labelText}>自転車を中心に</Text>
                 </View>
 
@@ -142,18 +142,18 @@ export const BikeFrameOverlay: React.FC<BikeFrameOverlayProps> = ({ overlayOpaci
                     style={[
                         styles.arrowImage,
                         {
-                            top: centerY - 55,
-                            left: centerX - 5,
-                            transform: [{ rotate: '135deg' }],
+                            top: centerY - 5,
+                            left: centerX + 20,
+                            transform: [{ rotate: '5deg' }, { scaleX: -1 }],
                         },
                     ]}
                     resizeMode="contain"
                 />
 
                 {/* Bottom label: 後輪側 */}
-                <View style={[styles.labelRow, { top: frameY + FRAME_HEIGHT - 55 }]}>
+                {/* <View style={[styles.labelRow, { top: frameY + FRAME_HEIGHT - 55 }]}>
                     <Text style={styles.labelText}>後輪側</Text>
-                </View>
+                </View> */}
             </Animated.View>
         </View>
     );
@@ -185,8 +185,8 @@ const styles = StyleSheet.create({
     },
     arrowImage: {
         position: 'absolute',
-        width: 45,
-        height: 45,
+        width: 80,
+        height: 80,
     },
     arrowImageSmall: {
         position: 'absolute',
