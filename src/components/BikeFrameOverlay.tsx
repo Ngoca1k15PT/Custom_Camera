@@ -142,13 +142,14 @@ export const BikeFrameOverlay: React.FC<BikeFrameOverlayProps> = ({ overlayOpaci
                     style={[
                         styles.arrowImage,
                         {
-                            top: centerY - 5,
-                            left: centerX + 20,
-                            transform: [{ rotate: '5deg' }],
+                            top: centerY - 110,
+                            left: centerX - 10,
+                            transform: [{ rotate: '135deg' }],
                         },
                     ]}
                     resizeMode="contain"
                 />
+
 
                 {/* Bottom label: 後輪側 */}
                 {/* <View style={[styles.labelRow, { top: frameY + FRAME_HEIGHT - 55 }]}>
