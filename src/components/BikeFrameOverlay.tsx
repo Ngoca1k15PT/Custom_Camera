@@ -132,7 +132,7 @@ export const BikeFrameOverlay: React.FC<BikeFrameOverlayProps> = ({ overlayOpaci
                 /> */}
 
                 {/* Middle label: 自転車を中心に */}
-                <View style={[styles.labelRow, { top: centerY + 40 }]}>
+                <View style={[styles.labelRow, { top: centerY + 60 }]}>
                     <Text style={styles.labelText}>自転車を中心に</Text>
                 </View>
 
@@ -144,7 +144,7 @@ export const BikeFrameOverlay: React.FC<BikeFrameOverlayProps> = ({ overlayOpaci
                         {
                             top: centerY - 5,
                             left: centerX + 20,
-                            transform: [{ rotate: '5deg' }, { scaleX: -1 }],
+                            transform: [{ rotate: '5deg' }],
                         },
                     ]}
                     resizeMode="contain"
@@ -173,24 +173,32 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     labelText: {
-        backgroundColor: 'rgba(50, 50, 50, 0.8)',
-        color: 'white',
-        fontSize: 16,
-        fontWeight: '700',
+        backgroundColor: 'rgba(0, 0, 0, 0.75)',
+        color: '#FFD700',
+        fontSize: 18,
+        fontWeight: '800',
         textAlign: 'center',
-        paddingHorizontal: 16,
-        paddingVertical: 8,
-        borderRadius: 6,
+        paddingHorizontal: 18,
+        paddingVertical: 10,
+        borderRadius: 8,
         overflow: 'hidden',
+        borderWidth: 1.5,
+        borderColor: 'rgba(255, 215, 0, 0.6)',
+        textShadowColor: 'rgba(255, 215, 0, 0.8)',
+        textShadowOffset: { width: 0, height: 0 },
+        textShadowRadius: 8,
+        letterSpacing: 1,
     },
     arrowImage: {
         position: 'absolute',
-        width: 80,
-        height: 80,
+        width: 100,
+        height: 100,
+        tintColor: '#fd0800ff',
     },
     arrowImageSmall: {
         position: 'absolute',
-        width: 40,
-        height: 40,
+        width: 45,
+        height: 45,
+        tintColor: '#ff0000ff',
     },
 });
